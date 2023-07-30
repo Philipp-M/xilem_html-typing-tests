@@ -46,7 +46,7 @@ macro_rules! impl_element {
     ($( $el:ident),* ) => {
         $(
         impl<VT> $el<VT> {
-            fn class<T: IntoClass>(mut self, class: T) -> Self {
+            fn class<T: IntoClass>(mut self, class: T) -> $el<VT> {
                 match self.attrs.entry("class") {
                     Entry::Vacant(entry) => {
                         entry.insert(Box::new(BTreeSet::from_iter(class.classes())));
@@ -66,8 +66,8 @@ macro_rules! impl_element {
 }
 
 macro_rules! impl_trivial_attr {
-    ($name:ident, $ty: ty, $key: literal) => {
-        fn $name(mut self, $name: $ty) -> Self {
+    ($name:ident, $ty: ty, $key: literal, $el: ty) => {
+        fn $name(mut self, $name: $ty) -> $el {
             self.attrs
                 .entry($key) // TODO: namespacing necessary/useful?
                 .and_modify(|attr| {
@@ -83,8 +83,8 @@ macro_rules! impl_canvas_element {
     ($( $el:ident),* ) => {
         $(
         impl<VT> $el<VT> {
-            impl_trivial_attr!(height, usize, "canvas_height");
-            impl_trivial_attr!(width, usize, "canvas_width");
+            impl_trivial_attr!(height, usize, "canvas_height", $el<VT>);
+            impl_trivial_attr!(width, usize, "canvas_width", $el<VT>);
         }
         )*
     };
